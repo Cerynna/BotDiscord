@@ -1,9 +1,13 @@
 {
-  "dependencies": {
-    "discord.js": "^11.5.1"
-  },
   "name": "BotDiscord",
   "version": "1.0.0",
   "main": "main.js",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "discord.js": "^11.5.1",
+    "node-cron": "^2.0.3"
+  },
+  "scripts": {
+    "dev": "nodemon main.js --ignore './DB'"
+  }
 }

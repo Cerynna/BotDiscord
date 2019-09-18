@@ -1,2 +1,3 @@
-DB
 node_modules
+DB/instances
+DB/users

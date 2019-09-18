@@ -183,7 +183,7 @@ client.on("message", msg => {
         msg.channel.send("Listes des Donjons");
         listDJ().forEach(donjon => {
           if (embedDonjon(donjon)) {
-            client.channels.get(config.channel).send(embedDonjon(donjon));
+            msg.channel.send(embedDonjon(donjon));
           }
         });
       }
@@ -194,17 +194,17 @@ client.on("message", msg => {
         });
       }
       if (command === "clear") {
-        client.channels.get(config.channel).fetchMessages().then(
+        msg.channel.fetchMessages().then(
           function(list) {
             msg.channel.bulkDelete(list);
           },
           function(err) {
-            client.channels.get(config.channel).send("ERROR: ERROR CLEARING CHANNEL.");
+            msg.channel.send("ERROR: ERROR CLEARING CHANNEL.");
           }
         );
       }
       if (command === "help") {
-        client.channels.get(config.channel).send(
+        msg.channel.send(
           new Discord.RichEmbed()
             .setTitle("Liste des commandes")
             .setColor("#FFFFFF")
@@ -377,7 +377,7 @@ function embedDonjon(donjon) {
       let user = JSON.parse(
         fs.readFileSync(`DB/users/${roster.id}.json`, "utf8")
       );
-      return `${user.class} | ${user.spe} | ${roster.name}`;
+      // return `${user.class} | ${user.spe} | ${roster.name}`;
       // return `${user.name}`;
     });
     return new Discord.RichEmbed()

@@ -180,15 +180,16 @@ client.on("message", msg => {
       let command = msg.content.slice(5, msg.channel.length);
 
       if (command === "listdj") {
-        msg.channel.send("Listes des Donjons");
+        client.channels.get(config.channel).send("Listes des Donjons");
         listDJ().forEach(donjon => {
           if (embedDonjon(donjon)) {
-            msg.channel.send(embedDonjon(donjon));
+            client.channels.get(config.channel).send(embedDonjon(donjon));
           }
         });
       }
       if (command === "selectchannel") {
-        config.channel = msg.guild.systemChannelID;
+        config.channel = msg.channel.id;
+        console.log(msg.channel)
         fs.writeFile(`DB/config.json`, JSON.stringify(config), err => {
           console.log(err);
         });
@@ -204,7 +205,7 @@ client.on("message", msg => {
         );
       }
       if (command === "help") {
-        msg.channel.send(
+        msg.author.send(
           new Discord.RichEmbed()
             .setTitle("Liste des commandes")
             .setColor("#FFFFFF")
@@ -378,7 +379,7 @@ function embedDonjon(donjon) {
         fs.readFileSync(`DB/users/${roster.id}.json`, "utf8")
       );
       // return `${user.class} | ${user.spe} | ${roster.name}`;
-      // return `${user.name}`;
+      return `${user.name}`;
     });
     return new Discord.RichEmbed()
       .setTitle(

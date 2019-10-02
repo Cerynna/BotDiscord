@@ -39,14 +39,13 @@ cron.schedule("*/20 * * * *", () => {
   // });
 });
 
-const Instances = require('./DB/instances');
+const Instances = require("./DB/instances");
 
-const ClassWoW = require('./DB/classWoW');
+const ClassWoW = require("./DB/classWoW");
 
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
 });
-
 
 client.on("message", msg => {
   if (msg.author == client.user) {
@@ -133,6 +132,10 @@ client.on("message", msg => {
         user.prevMess = "";
         user.roster.push(idInstance);
         saveUser(msg.author.id, user);
+
+        setTimeout(() => {
+          ListDJEmbed(client);
+        }, 1000);
       }
     }
 
@@ -180,16 +183,19 @@ client.on("message", msg => {
       let command = msg.content.slice(5, msg.channel.length);
 
       if (command === "listdj") {
-        client.channels.get(config.channel).send("Listes des Donjons");
-        listDJ().forEach(donjon => {
-          if (embedDonjon(donjon)) {
-            client.channels.get(config.channel).send(embedDonjon(donjon));
-          }
-        });
+        ListDJEmbed(client);
+
+        // client.channels.get(config.channel).send("Listes des Donjons");
+        // listDJ().forEach(donjon => {
+        //   let embed = embedDonjon(donjon);
+        //   if (embed) {
+        //     client.channels.get(config.channel).send(embed);
+        //   }
+        // });
       }
       if (command === "selectchannel") {
         config.channel = msg.channel.id;
-        console.log(msg.channel)
+        console.log(msg.channel);
         fs.writeFile(`DB/config.json`, JSON.stringify(config), err => {
           console.log(err);
         });
@@ -371,10 +377,11 @@ function embedDonjon(donjon) {
   var minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
   var seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-  const img = (donjon.data.name.img)? donjon.data.name.img : 'https://www.mamytwink.com/upload/news/2018/septembre/26/wow-classic-billet-virtuel-blizzcon-2018-wow.jpg'
+  const img = donjon.data.name.img
+    ? donjon.data.name.img
+    : "https://www.mamytwink.com/upload/news/2018/septembre/26/wow-classic-billet-virtuel-blizzcon-2018-wow.jpg";
   if (diff > 1000 * 60) {
     let roster = donjon.data.roster.map(roster => {
-
       let user = JSON.parse(
         fs.readFileSync(`DB/users/${roster.id}.json`, "utf8")
       );
@@ -386,9 +393,7 @@ function embedDonjon(donjon) {
         `${donjon.data.name.name} - (${donjon.data.name.lvl.join(" - ")})`
       )
       .setColor("#FFFFFF")
-      .setThumbnail(
-        `${img}`
-      )
+      .setThumbnail(`${img}`)
       .setDescription(
         `dans ${days > 0 ? `${days} jours` : ""} ${
           hours > 0 ? `${hours} heures` : ""
@@ -408,6 +413,37 @@ function embedDonjon(donjon) {
     deleteInstance(donjon.id);
     return false;
   }
+}
+
+function ListDJEmbed(client) {
+  clearChannel(client);
+  client.channels.get(config.channel).send("Listes des Donjons");
+  listDJ().forEach(donjon => {
+    let embed = embedDonjon(donjon);
+    if (embed) {
+      client.channels.get(config.channel).send(embed);
+
+      // setTimeout(()=>{
+      //   embed.title = "LOL"
+      // },5000)
+    }
+  });
+}
+
+function clearChannel(client) {
+  client.channels
+    .get(config.channel)
+    .fetchMessages()
+    .then(
+      function(list) {
+        client.channels.get(config.channel).bulkDelete(list);
+      },
+      function(err) {
+        client.channels
+          .get(config.channel)
+          .send("ERROR: ERROR CLEARING CHANNEL.");
+      }
+    );
 }
 
 client.login("NjIxODE1NDExODg4ODgxNzA0.XX2Oeg.TDODqOBqPtGicBkLOc9QVl6h_w0");

@@ -195,7 +195,7 @@ client.on("message", msg => {
       }
       if (command === "selectchannel") {
         config.channel = msg.channel.id;
-        console.log(msg.channel);
+        // console.log(msg.channel);
         fs.writeFile(`DB/config.json`, JSON.stringify(config), err => {
           console.log(err);
         });
@@ -277,7 +277,7 @@ function AddInGroup(id, user) {
         })
       ) {
         group.roster.push(user);
-        console.log(group);
+        // console.log(group);
         // saveInstance(id, group);
         setTimeout(() => {
           saveInstance(id, group);
@@ -307,7 +307,7 @@ function RemoveInGroup(id, user) {
           return roster.id !== user.id;
         });
         group.roster = newRoster;
-        console.log(group);
+        // console.log(group);
 
         setTimeout(() => {
           saveInstance(id, group);

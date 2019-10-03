@@ -232,6 +232,20 @@ client.on("message", msg => {
       if (command.indexOf("join") >= 0) {
         let idGroup = command.split(" ").pop();
         AddInGroup(idGroup, { id: msg.author.id, name: msg.author.username });
+        // setTimeout(() => {
+        //   ListDJEmbed(client);
+        // }, 100);
+      }
+
+      if (command.indexOf("leave" >= 0)) {
+        let idGroup = command.split(" ").pop();
+        RemoveInGroup(idGroup, {
+          id: msg.author.id,
+          name: msg.author.username
+        });
+        // setTimeout(() => {
+        //   ListDJEmbed(client);
+        // }, 100);
       }
     }
   }
@@ -263,7 +277,44 @@ function AddInGroup(id, user) {
         })
       ) {
         group.roster.push(user);
-        saveInstance(id, group);
+        console.log(group);
+        // saveInstance(id, group);
+        setTimeout(() => {
+          saveInstance(id, group);
+        }, 100);
+
+        setTimeout(()=>{
+          ListDJEmbed(client) 
+        },200)
+      }
+    }
+  });
+}
+
+function RemoveInGroup(id, user) {
+  fs.exists(`DB/instances/${id}.json`, exists => {
+    if (exists) {
+      let group = JSON.parse(
+        fs.readFileSync(`DB/instances/${id}.json`, "utf8")
+      );
+
+      if (
+        group.roster.find(roster => {
+          return roster.id === user.id;
+        })
+      ) {
+        let newRoster = group.roster.filter(roster => {
+          return roster.id !== user.id;
+        });
+        group.roster = newRoster;
+        console.log(group);
+
+        setTimeout(() => {
+          saveInstance(id, group);
+        }, 100);
+        setTimeout(()=>{
+          ListDJEmbed(client) 
+        },200)
       }
     }
   });
@@ -385,9 +436,9 @@ function embedDonjon(donjon) {
       let user = JSON.parse(
         fs.readFileSync(`DB/users/${roster.id}.json`, "utf8")
       );
-      // return `${user.class} | ${user.spe} | ${roster.name}`;
-      return `${user.name}`;
-    });
+      // return `${user.class} | ${user.spe} | ${roster.name}\n`;
+      return `${client.emojis.find(emoji => emoji.name === user.class)} ${client.emojis.find(emoji => emoji.name === user.spe)} ${user.name}`;
+    }).join("\n");
     return new Discord.RichEmbed()
       .setTitle(
         `${donjon.data.name.name} - (${donjon.data.name.lvl.join(" - ")})`
@@ -402,11 +453,16 @@ function embedDonjon(donjon) {
         )}`
       )
       .addField("Chef du groupe", `${donjon.data.author.name}`, true)
-      .addField("Membres du groupe", roster, true)
+      .addField(`Membres du groupe `, `${roster}`, true)
       .addBlankField(true)
       .addField(
         "Rejoindre le groupe",
         `\`\`\`!cal join ${donjon.id}\`\`\``,
+        false
+      )
+      .addField(
+        "Quiter le groupe",
+        `\`\`\`!cal leave ${donjon.id}\`\`\``,
         false
       );
   } else {
